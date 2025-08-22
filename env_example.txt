@@ -1,0 +1,19 @@
+# Django Settings
+SECRET_KEY=your-super-secret-key-here
+DEBUG=False
+ALLOWED_HOSTS=localhost,127.0.0.1,10.40.39.24
+
+# Database Configuration
+DATABASE_URL=postgresql://bulutistan_user:your_secure_password@localhost:5432/bulutistan_db
+
+# PostgreSQL Connection Details
+DB_NAME=bulutistan_db
+DB_USER=bulutistan_user
+DB_PASSWORD=your_secure_password
+DB_HOST=localhost
+DB_PORT=5432
+
+# Admin Panel Settings
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin123
+ADMIN_EMAIL=admin@bulutistan.com

@@ -1,0 +1,181 @@
+/* Bulutistan Admin Panel Özel CSS */
+
+/* Ana başlık */
+#header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#header h1 {
+    font-size: 2.5em;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Sidebar */
+.module h2, .module caption, .inline-group h2 {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Butonlar */
+.button, input[type=submit], input[type=button], .submit-row input {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 25px;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Tablolar */
+#changelist table {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#changelist thead th {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+    color: white;
+    padding: 15px;
+    border: none;
+}
+
+#changelist tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+#changelist tbody tr:hover {
+    background-color: #e3f2fd;
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+/* Form alanları */
+.form-row {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.form-row label {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form-row input, .form-row textarea, .form-row select {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+}
+
+/* Breadcrumb */
+.breadcrumbs {
+    background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.breadcrumbs a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.breadcrumbs a:hover {
+    color: #3498db;
+}
+
+/* Mesajlar */
+.messagelist {
+    margin: 20px 0;
+}
+
+.messagelist li {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border-left: 5px solid;
+}
+
+.messagelist .success {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.messagelist .error {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+.messagelist .warning {
+    background: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+    #header h1 {
+        font-size: 1.8em;
+    }
+    
+    .form-row {
+        padding: 10px;
+    }
+    
+    .button, input[type=submit], input[type=button], .submit-row input {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Özel animasyonlar */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.module {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Türkçe karakter desteği */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Özel renkler */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --accent-color: #e74c3c;
+    --text-color: #2c3e50;
+    --bg-color: #ecf0f1;
+}

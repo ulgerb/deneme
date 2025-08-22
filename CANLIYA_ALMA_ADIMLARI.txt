@@ -1,0 +1,600 @@
+# 🚀 BULUTİSTAN DJANGO PROJESİ - CANLIYA ALMA ADIMLARI
+# Tarih: Şimdi
+# Sunucu: 10.40.39.24 (ubuntu)
+
+## 📋 ÖN HAZIRLIK (TAMAMLANDI)
+
+### ✅ Oluşturulan Dosyalar:
+1. requirements.txt - Python bağımlılıkları
+2. bulutistan/settings_production.py - Production ayarları
+3. gunicorn.conf.py - Gunicorn konfigürasyonu
+4. deploy.sh - Otomatik deployment script'i
+5. env_example.txt - Environment değişkenleri
+6. README.md - Detaylı kılavuz
+7. sunucu_baglanti_kontrol.md - Bağlantı sorunları çözümü
+8. bulutistan/templates/index.html - Ana sayfa template'i
+9. bulutistan/urls.py - URL yapılandırması güncellendi
+
+### ✅ Yapılan Değişiklikler:
+- Django settings production için hazırlandı
+- PostgreSQL veritabanı entegrasyonu
+- Gunicorn + Nginx yapılandırması
+- Türkçe dil desteği (tr-tr)
+- İstanbul saat dilimi
+- Güvenlik ayarları
+- Logging yapılandırması
+
+## 🔌 ADIM 1: SUNUCU BAĞLANTISI
+
+### 1.1 VMware vSphere Client Üzerinden Konsol Erişimi:
+```
+1. vSphere Client'a giriş yapın
+2. Sunucuya (ubuntu) sağ tıklayın
+3. "Open Console" seçin
+4. Konsol üzerinden terminal erişimi sağlayın
+```
+
+### 1.2 SSH Servisini Etkinleştirme:
+```bash
+# SSH servisini kontrol et
+sudo systemctl status ssh
+
+# SSH servisini etkinleştir
+sudo systemctl enable ssh
+sudo systemctl start ssh
+
+# SSH port'unu aç
+sudo ufw allow ssh
+sudo ufw allow 22
+
+# SSH konfigürasyonını kontrol et
+sudo nano /etc/ssh/sshd_config
+
+# Önemli ayarlar:
+Port 22
+ListenAddress 0.0.0.0
+PermitRootLogin no
+PasswordAuthentication yes
+PubkeyAuthentication yes
+
+# SSH servisini yeniden başlat
+sudo systemctl restart ssh
+```
+
+### 1.3 Ağ Yapılandırması Kontrolü:
+```bash
+# IP adresini kontrol et
+ip addr show
+
+# Gateway'i kontrol et
+ip route show
+
+# DNS ayarlarını kontrol et
+cat /etc/resolv.conf
+
+# Network servislerini yeniden başlat
+sudo systemctl restart networking
+sudo systemctl restart systemd-networkd
+```
+
+### 1.4 Güvenlik Duvarı Ayarları:
+```bash
+# UFW durumunu kontrol et
+sudo ufw status
+
+# SSH için kural ekle
+sudo ufw allow ssh
+sudo ufw allow 22/tcp
+
+# Güvenlik duvarını etkinleştir
+sudo ufw enable
+```
+
+## 🚀 ADIM 2: DJANGO PROJESİNİ SUNUCUYA KOPYALAMA
+
+### 2.1 Yerel Bilgisayardan Proje Kopyalama:
+```bash
+# Windows PowerShell'de:
+scp -r bulutistan/ ubuntu@10.40.39.24:/var/www/
+
+# Eğer SSH anahtarı yoksa:
+scp -r bulutistan/ ubuntu@10.40.39.24:/var/www/
+# Şifre sorulacak
+```
+
+### 2.2 Alternatif: Git ile Kopyalama:
+```bash
+# Sunucuda:
+sudo mkdir -p /var/www/bulutistan
+sudo chown $USER:$USER /var/www/bulutistan
+cd /var/www/bulutistan
+
+# Git repository'den clone:
+git clone <repository-url> .
+# veya
+# Dosyaları manuel olarak kopyala
+```
+
+## 🗄️ ADIM 3: POSTGRESQL KURULUMU VE YAPILANDIRMASI
+
+### 3.1 PostgreSQL Kurulumu:
+```bash
+# Sistem güncellemeleri
+sudo apt update && sudo apt upgrade -y
+
+# PostgreSQL kurulumu
+sudo apt install -y postgresql postgresql-contrib
+
+# PostgreSQL servisini başlat
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+# Servis durumunu kontrol et
+sudo systemctl status postgresql
+```
+
+### 3.2 Veritabanı ve Kullanıcı Oluşturma:
+```bash
+# PostgreSQL'e postgres kullanıcısı olarak bağlan
+sudo -u postgres psql
+
+# Veritabanı oluştur
+CREATE DATABASE bulutistan_db;
+
+# Kullanıcı oluştur
+CREATE USER bulutistan_user WITH PASSWORD 'your_secure_password';
+
+# Yetkileri ver
+GRANT ALL PRIVILEGES ON DATABASE bulutistan_db TO bulutistan_user;
+ALTER USER bulutistan_user CREATEDB;
+
+# PostgreSQL'den çık
+\q
+```
+
+### 3.3 Veritabanı Bağlantı Testi:
+```bash
+# Yeni kullanıcı ile bağlantı testi
+psql -h localhost -U bulutistan_user -d bulutistan_db
+# Şifre sorulacak
+
+# Veritabanlarını listele
+\l
+
+# Çık
+\q
+```
+
+## 🐍 ADIM 4: PYTHON ORTAMI VE DJANGO KURULUMU
+
+### 4.1 Python ve Gerekli Paketlerin Kurulumu:
+```bash
+# Python3 ve pip kurulumu
+sudo apt install -y python3 python3-pip python3-venv
+
+# Python versiyonunu kontrol et
+python3 --version
+pip3 --version
+
+# Proje dizinine git
+cd /var/www/bulutistan
+
+# Virtual environment oluştur
+python3 -m venv venv
+
+# Virtual environment'ı aktifleştir
+source venv/bin/activate
+
+# Pip'i güncelle
+pip install --upgrade pip
+
+# Gerekli paketleri yükle
+pip install -r requirements.txt
+```
+
+### 4.2 Environment Değişkenleri:
+```bash
+# .env dosyası oluştur
+cat > .env << EOF
+SECRET_KEY=$(python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')
+DEBUG=False
+ALLOWED_HOSTS=localhost,127.0.0.1,10.40.39.24
+DATABASE_URL=postgresql://bulutistan_user:your_secure_password@localhost:5432/bulutistan_db
+EOF
+
+# .env dosyasını kontrol et
+cat .env
+```
+
+## ⚙️ ADIM 5: DJANGO YAPILANDIRMASI
+
+### 5.1 Production Settings:
+```bash
+# Environment değişkenini ayarla
+export DJANGO_SETTINGS_MODULE=bulutistan.settings_production
+
+# Django ayarlarını test et
+python manage.py check --deploy
+
+# Veritabanı migration'larını yap
+python manage.py migrate
+
+# Static dosyaları topla
+python manage.py collectstatic --noinput
+
+# Superuser oluştur
+python manage.py createsuperuser
+# Kullanıcı adı, email ve şifre girin
+```
+
+### 5.2 Django Test:
+```bash
+# Django development server ile test
+python manage.py runserver 0.0.0.0:8000
+
+# Yeni terminal'de test
+curl http://localhost:8000
+# veya tarayıcıda http://10.40.39.24:8000
+
+# Ctrl+C ile durdur
+```
+
+## 🌐 ADIM 6: GUNICORN KURULUMU VE YAPILANDIRMASI
+
+### 6.1 Gunicorn Test:
+```bash
+# Virtual environment aktif olmalı
+source venv/bin/activate
+
+# Gunicorn ile test
+gunicorn --config gunicorn.conf.py bulutistan.wsgi:application
+
+# Yeni terminal'de test
+curl http://localhost:8000
+# Ctrl+C ile durdur
+```
+
+### 6.2 Systemd Service Oluşturma:
+```bash
+# Gunicorn systemd service dosyası oluştur
+sudo tee /etc/systemd/system/bulutistan.service > /dev/null << EOF
+[Unit]
+Description=Bulutistan Django Application
+After=network.target
+
+[Service]
+User=$USER
+Group=$USER
+WorkingDirectory=/var/www/bulutistan
+Environment="PATH=/var/www/bulutistan/venv/bin"
+Environment="DJANGO_SETTINGS_MODULE=bulutistan.settings_production"
+ExecStart=/var/www/bulutistan/venv/bin/gunicorn --config gunicorn.conf.py bulutistan.wsgi:application
+ExecReload=/bin/kill -s HUP \$MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Service'i etkinleştir
+sudo systemctl daemon-reload
+sudo systemctl enable bulutistan
+sudo systemctl start bulutistan
+
+# Service durumunu kontrol et
+sudo systemctl status bulutistan
+```
+
+## 🚀 ADIM 7: NGINX KURULUMU VE YAPILANDIRMASI
+
+### 7.1 Nginx Kurulumu:
+```bash
+# Nginx kurulumu
+sudo apt install -y nginx
+
+# Nginx servisini başlat
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+# Nginx durumunu kontrol et
+sudo systemctl status nginx
+```
+
+### 7.2 Nginx Konfigürasyonu:
+```bash
+# Nginx site konfigürasyonu oluştur
+sudo tee /etc/nginx/sites-available/bulutistan > /dev/null << EOF
+server {
+    listen 80;
+    server_name 10.40.39.24;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    
+    location /static/ {
+        root /var/www/bulutistan;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /media/ {
+        root /var/www/bulutistan;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/var/www/bulutistan/bulutistan.sock;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+
+# Site'ı etkinleştir
+sudo ln -s /etc/nginx/sites-available/bulutistan /etc/nginx/sites-enabled
+
+# Default site'ı devre dışı bırak
+sudo rm /etc/nginx/sites-enabled/default
+
+# Nginx konfigürasyonunu test et
+sudo nginx -t
+
+# Nginx'i yeniden başlat
+sudo systemctl restart nginx
+```
+
+## 🔧 ADIM 8: SOCKET DOSYASI YAPILANDIRMASI
+
+### 8.1 Gunicorn Socket Konfigürasyonu:
+```bash
+# Gunicorn.conf.py dosyasını güncelle
+sudo nano /var/www/bulutistan/gunicorn.conf.py
+
+# Socket binding ekle:
+bind = "unix:/var/www/bulutistan/bulutistan.sock"
+
+# Service'i yeniden başlat
+sudo systemctl restart bulutistan
+
+# Socket dosyasının oluştuğunu kontrol et
+ls -la /var/www/bulutistan/bulutistan.sock
+```
+
+## 🔒 ADIM 9: GÜVENLİK AYARLARI
+
+### 9.1 Firewall Yapılandırması:
+```bash
+# SSH için kural
+sudo ufw allow OpenSSH
+
+# HTTP için kural
+sudo ufw allow 'Nginx Full'
+
+# Firewall'u etkinleştir
+sudo ufw --force enable
+
+# Firewall durumunu kontrol et
+sudo ufw status
+```
+
+### 9.2 Dosya İzinleri:
+```bash
+# Proje dizini izinlerini ayarla
+sudo chown -R $USER:$USER /var/www/bulutistan
+sudo chmod -R 755 /var/www/bulutistan
+
+# Log dizini oluştur
+mkdir -p /var/www/bulutistan/logs
+sudo chown -R $USER:$USER /var/www/bulutistan/logs
+```
+
+## 📊 ADIM 10: TEST VE DOĞRULAMA
+
+### 10.1 Servis Durumları:
+```bash
+# Tüm servislerin durumunu kontrol et
+sudo systemctl status postgresql
+sudo systemctl status bulutistan
+sudo systemctl status nginx
+
+# Port durumlarını kontrol et
+sudo netstat -tlnp | grep -E ':(22|80|5432|8000)'
+```
+
+### 10.2 Web Uygulaması Testi:
+```bash
+# Yerel test
+curl http://localhost
+curl http://127.0.0.1
+
+# IP üzerinden test
+curl http://10.40.39.24
+
+# Admin paneli testi
+curl http://10.40.39.24/admin/
+```
+
+### 10.3 Veritabanı Testi:
+```bash
+# Django shell ile test
+cd /var/www/bulutistan
+source venv/bin/activate
+export DJANGO_SETTINGS_MODULE=bulutistan.settings_production
+python manage.py shell
+
+# Shell'de test:
+from django.db import connection
+cursor = connection.cursor()
+cursor.execute("SELECT version();")
+cursor.fetchone()
+exit()
+```
+
+## 🚨 ADIM 11: HATA AYIKLAMA
+
+### 11.1 Log Dosyalarını Kontrol Etme:
+```bash
+# Django logları
+tail -f /var/www/bulutistan/logs/django.log
+
+# Gunicorn logları
+sudo journalctl -u bulutistan -f
+
+# Nginx logları
+sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/nginx/access.log
+
+# PostgreSQL logları
+sudo tail -f /var/log/postgresql/postgresql-*.log
+```
+
+### 11.2 Yaygın Sorunlar ve Çözümleri:
+
+#### Port 8000 Kullanımda:
+```bash
+sudo lsof -i :8000
+sudo kill -9 <PID>
+```
+
+#### Permission Hatası:
+```bash
+sudo chown -R $USER:$USER /var/www/bulutistan
+sudo chmod -R 755 /var/www/bulutistan
+```
+
+#### Veritabanı Bağlantı Hatası:
+```bash
+sudo systemctl status postgresql
+sudo -u postgres psql -c "\l"
+```
+
+#### Nginx Hatası:
+```bash
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+## 🎯 ADIM 12: OTOMATİK DEPLOYMENT SCRIPT
+
+### 12.1 Deploy Script'ini Çalıştırma:
+```bash
+# Script'i çalıştırılabilir yap
+chmod +x deploy.sh
+
+# Deployment'ı başlat
+./deploy.sh
+```
+
+### 12.2 Manuel Deployment (Script çalışmazsa):
+```bash
+# Yukarıdaki tüm adımları sırasıyla manuel olarak çalıştır
+# Her adımda sonucu kontrol et
+```
+
+## ✅ SON KONTROL LİSTESİ
+
+### ✅ Sunucu Bağlantısı:
+- [ ] SSH erişimi sağlandı
+- [ ] Ping testi başarılı
+- [ ] Port 22 açık
+
+### ✅ Veritabanı:
+- [ ] PostgreSQL kuruldu
+- [ ] Veritabanı oluşturuldu
+- [ ] Kullanıcı oluşturuldu
+- [ ] Django migration'ları yapıldı
+
+### ✅ Django:
+- [ ] Python paketleri kuruldu
+- [ ] Environment değişkenleri ayarlandı
+- [ ] Production settings aktif
+- [ ] Static dosyalar toplandı
+- [ ] Superuser oluşturuldu
+
+### ✅ Web Sunucusu:
+- [ ] Gunicorn kuruldu ve çalışıyor
+- [ ] Systemd service aktif
+- [ ] Socket dosyası oluştu
+
+### ✅ Reverse Proxy:
+- [ ] Nginx kuruldu
+- [ ] Site konfigürasyonu aktif
+- [ ] Proxy ayarları doğru
+
+### ✅ Güvenlik:
+- [ ] Firewall kuralları ayarlandı
+- [ ] Dosya izinleri doğru
+- [ ] SSH güvenli
+
+### ✅ Test:
+- [ ] Ana sayfa açılıyor
+- [ ] Admin paneli erişilebilir
+- [ ] Veritabanı bağlantısı çalışıyor
+- [ ] Log dosyaları oluşuyor
+
+## 🌐 CANLI ORTAM ERİŞİMİ
+
+### Web Uygulaması:
+- **URL:** http://10.40.39.24
+- **Admin Panel:** http://10.40.39.24/admin/
+
+### Sunucu Bilgileri:
+- **IP:** 10.40.39.24
+- **Hostname:** ubuntu
+- **İşletim Sistemi:** Ubuntu Linux (64-bit)
+- **Django Versiyonu:** 4.2.7
+- **Veritabanı:** PostgreSQL
+- **Web Sunucusu:** Gunicorn
+- **Reverse Proxy:** Nginx
+
+## 📞 DESTEK VE SORUN GİDERME
+
+### Log Dosyaları:
+- Django: `/var/www/bulutistan/logs/django.log`
+- Gunicorn: `sudo journalctl -u bulutistan -f`
+- Nginx: `/var/log/nginx/`
+- PostgreSQL: `/var/log/postgresql/`
+
+### Servis Yönetimi:
+```bash
+# Gunicorn
+sudo systemctl start/stop/restart/status bulutistan
+
+# Nginx
+sudo systemctl start/stop/restart/status nginx
+
+# PostgreSQL
+sudo systemctl start/stop/restart/status postgresql
+```
+
+### Performans İzleme:
+```bash
+# Sistem kaynakları
+htop
+df -h
+free -h
+
+# Port durumu
+sudo netstat -tlnp
+
+# Servis durumları
+sudo systemctl list-units --type=service --state=running
+```
+
+---
+
+## 🎉 TEBRİKLER! 
+
+Bulutistan Django projesi başarıyla canlı ortama deploy edildi!
+
+**Sonraki Adımlar:**
+1. SSL sertifikası ekleyin (Let's Encrypt)
+2. Monitoring ve alerting kurun
+3. Backup stratejisi oluşturun
+4. Performance optimization yapın
+5. Security audit gerçekleştirin
+
+**Not:** Bu dokümanı güvenli bir yerde saklayın ve gerektiğinde güncelleyin.

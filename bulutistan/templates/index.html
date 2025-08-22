@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulutistan - Canlı Ortam</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .status {
+            background: #27ae60;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            display: inline-block;
+        }
+        .info {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+        }
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        .tech-item {
+            background: #3498db;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        .timestamp {
+            color: #95a5a6;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 Bulutistan</h1>
+        <div class="status">✅ CANLI ORTAMDA ÇALIŞIYOR</div>
+        <div class="info">
+            Django projesi başarıyla production ortamına deploy edildi!
+        </div>
+        
+        <div class="tech-stack">
+            <div class="tech-item">Django 4.2.7</div>
+            <div class="tech-item">PostgreSQL</div>
+            <div class="tech-item">Gunicorn</div>
+            <div class="tech-item">Nginx</div>
+            <div class="tech-item">Ubuntu Server</div>
+        </div>
+        
+        <div class="info">
+            <strong>Sunucu IP:</strong> 10.40.39.24<br>
+            <strong>Hostname:</strong> ubuntu<br>
+            <strong>İşletim Sistemi:</strong> Ubuntu Linux (64-bit)
+        </div>
+        
+        <div class="timestamp">
+            Deploy Tarihi: {{ deploy_date|default:"Şimdi" }}
+        </div>
+    </div>
+</body>
+</html>
